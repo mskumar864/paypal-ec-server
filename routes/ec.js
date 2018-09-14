@@ -1,6 +1,5 @@
 var express = require('express');
 var https = require("https");
-var create_payment = require('../payload/create-payment');
 
 var router = express.Router();
 var sanboxUrl = 'api.sandbox.paypal.com';
