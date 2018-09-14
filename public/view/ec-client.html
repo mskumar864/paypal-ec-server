@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+</head>
+
+<body>
+
+<div style="text-align: center; margin-top: 10%">
+	<div>
+		Amount: <input type="text" id="amountId" value="1" size="4"/>
+		Currency : <select id="selectedCurrency">
+                    <option value="INR" selected="true">INR</option>
+                    <option value="USD">USD</option>
+				 </select>
+	</div>
+	<br><br>
+
+   <div id="paypal-button-container"></div>
+</div>	
+
+    <script>
+        paypal.Button.render({
+
+            env: 'sandbox',
+            client: {
+                sandbox: 'AcuuDiWgApKeQx7oY6wuGh2kbAIzy8B1NrruTzVl_vn3Dqv7a-EYGKlHRMb70fjc3eX3EP5rlM3VUp8g'
+            },
+            commit: true,
+			style: {
+				layout: 'vertical',  // horizontal | vertical
+				size:   'medium',    // medium | large | responsive
+				shape:  'rect',      // pill | rect
+				color:  'gold'       // gold | blue | silver | black
+				},
+
+            funding: {
+                allowed: [ paypal.FUNDING.CARD ],
+                disallowed: [ ]
+            },
+
+            payment: function(data, actions) {
+
+                return actions.payment.create({
+                    payment: {
+                        transactions: [
+                            {
+                                amount: { 
+									total: document.getElementById("amountId").value, 
+									currency: document.getElementById("selectedCurrency").value
+								}
+                            }
+                        ]
+                    }
+                });
+            },
+
+            onAuthorize: function(data, actions) {
+
+                return actions.payment.execute().then(function() {
+                    window.alert('Payment Complete!');
+                });
+            }
+
+        }, '#paypal-button-container');
+
+    </script>
+</body>

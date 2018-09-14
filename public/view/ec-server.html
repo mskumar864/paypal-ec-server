@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+</head>
+
+<body>
+
+<div style="text-align: center; margin-top: 10%">
+	<div>
+		Amount: <input type="text" id="amountId" value="1" size="4"/>
+		Currency : <select id="selectedCurrency">
+                    <option value="INR" selected="true">INR</option>
+                    <option value="USD">USD</option>
+				 </select>
+	</div>
+	<br><br>
+
+   <div id="paypal-server-button"></div>
+</div>	
+
+<script>
+  paypal.Button.render({
+    env: 'sandbox', 
+    commit: true,
+    style: {
+        layout: 'vertical',  // horizontal | vertical
+        size:   'medium',    // medium | large | responsive
+        shape:  'rect',      // pill | rect
+        color:  'gold'       // gold | blue | silver | black
+        },
+
+    funding: {
+        allowed: [ paypal.FUNDING.CARD ],
+        disallowed: [ ]
+    },
+
+    payment: function(data, actions) {
+      console.log(data);
+      var body = {
+        intent: "sale",
+        payer: {
+             "payment_method": "paypal"
+        },
+        transactions: [
+            {
+                amount: { 
+                    total: document.getElementById("amountId").value, 
+                    currency: document.getElementById("selectedCurrency").value
+                }
+            }
+        ],
+        redirect_urls : {
+          "return_url": "http://www.amazon.com",
+          "cancel_url": "http://www.hawaii.com"
+        }
+        
+       };
+        var Create_URL = '/api/paypal/ec/create-payment/';
+        console.log(body);
+        
+        return actions.request({
+            method: 'post',
+            url: Create_URL,
+            json: body
+            
+        }) .then(function(res) {
+            console.log(res);
+            return res.id;
+        });
+    },
+    onAuthorize: function(data, actions) {
+      console.log(data);
+      console.log(actions);
+      return actions.request.post('/api/paypal/ec/execute-payment/', {
+        paymentID: data.paymentID,
+        payerID:   data.payerID
+      }).then(function(res) {
+          console.log(res);
+        });
+    }
+  }, '#paypal-server-button');
+</script>
+</body>
